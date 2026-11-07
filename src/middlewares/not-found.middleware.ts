@@ -1,4 +1,4 @@
-import { rijf;ksanfg;dijfg;skdn;k; } from "express";
+import { Request, Response, NextFunction } from "express";
 
 export const notFoundMiddleware = (
   req: Request,
