@@ -7,6 +7,6 @@ export const notFoundMiddleware = (
 ) => {
   res.status(404).json({
     success: false,
-    message: `Route ${req.originalUrl} does not exist (demo B)`,
+    message: `Route ${req.originalUrl} not found`,
   });
 };
