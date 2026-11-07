@@ -1,4 +1,4 @@
-import { Rgjfhjggjjjjjjjjj } from "express";
+import { Request, Response, NextFunction } from "express";
 
 export const notFoundMiddleware = (
   req: Request,
