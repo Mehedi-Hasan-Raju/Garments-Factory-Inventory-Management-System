@@ -1,4 +1,7 @@
+ 2nd
+
  1st
+ main
 import { Request, Response, NextFunction } from "express";
 
 export const notFoundMiddleware = (
@@ -10,9 +13,13 @@ export const notFoundMiddleware = (
     success: false,
     message: `Route ${req.originalUrl} not found`,
   });
+  2nd
+};
+
 };
 
 
 
 jadskbvjklvblkjadviuvjkavla
  main
+
