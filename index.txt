@@ -1,0 +1,3 @@
+Project: GarmentFlow ERP
+Status: Initial Version
+Department: Inventory
