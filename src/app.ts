@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env";
 
+import authRoutes from "./modules/auth/auth.routes.js";
+
 const app = express();
 
 // Security
@@ -38,6 +40,10 @@ const apiLimiter = rateLimit({
 });
 
 app.use("/api", apiLimiter);
+app.use("/api/v1/auth", authRoutes);
+
+
+
 
 // Root route
 app.get("/", (_req, res) => {
