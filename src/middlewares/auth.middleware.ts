@@ -1,11 +1,15 @@
 
-import type { Request, Response, NextFunction } from "express";
+import type {
+  Request,
+  Response,
+  NextFunction,
+} from "express";
+
 import { verifyAccessToken } from "../utils/jwt.js";
 
 export interface AuthRequest extends Request {
   user?: {
     userId: string;
-    organizationId: string;
     role: string;
   };
 }
@@ -18,10 +22,10 @@ export const authenticate = (
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!authHeader?.startsWith("Bearer ")) {
       res.status(401).json({
         success: false,
-        message: "Authentication token is required",
+        message: "Authentication required",
       });
       return;
     }
@@ -31,12 +35,13 @@ export const authenticate = (
     if (!token) {
       res.status(401).json({
         success: false,
-        message: "Invalid authentication token",
+        message: "Invalid token",
       });
       return;
     }
 
     req.user = verifyAccessToken(token);
+
     next();
   } catch {
     res.status(401).json({
@@ -46,16 +51,16 @@ export const authenticate = (
   }
 };
 
-export const authorize = (...allowedRoles: string[]) => {
+export const authorize = (...roles: string[]) => {
   return (
     req: AuthRequest,
     res: Response,
     next: NextFunction,
   ) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
+    if (!req.user || !roles.includes(req.user.role)) {
       res.status(403).json({
         success: false,
-        message: "You do not have permission to access this resource",
+        message: "You do not have permission",
       });
       return;
     }

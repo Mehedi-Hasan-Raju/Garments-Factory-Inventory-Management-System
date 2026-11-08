@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -39,13 +38,13 @@ enum EmployeeStatus {
 // ==========================================
 
 model Organization {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String   @db.VarChar(200)
-  slug      String   @unique @db.VarChar(100)
-  email     String?  @db.VarChar(255)
-  phone     String?  @db.VarChar(30)
-  address   String?  @db.Text
-  isActive  Boolean  @default(true)
+  id       String  @id @default(uuid()) @db.Uuid
+  name     String  @db.VarChar(200)
+  slug     String  @unique @db.VarChar(100)
+  email    String? @db.VarChar(255)
+  phone    String? @db.VarChar(30)
+  address  String? @db.Text
+  isActive Boolean @default(true)
 
   users       User[]
   employees   Employee[]
@@ -62,28 +61,24 @@ model Organization {
 // ==========================================
 
 model User {
-  id             String     @id @default(uuid()) @db.Uuid
-  organizationId String     @db.Uuid
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         UserRole   @default(EMPLOYEE)
+  status       UserStatus @default(ACTIVE)
 
-  name           String     @db.VarChar(150)
-  email          String     @unique @db.VarChar(255)
-  passwordHash   String     @db.VarChar(255)
-
-  role           UserRole   @default(EMPLOYEE)
-  status         UserStatus @default(ACTIVE)
-
-  organization Organization @relation(fields: [organizationId], references: [id],onDelete: Restrict)
-
-  employee Employee?
+  organizationId String       @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee       Employee?
 
   lastLoginAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
+  @@index([role])
+  @@index([status])
   @@index([organizationId])
-  @@index([organizationId, role])
-  @@index([organizationId, status])
-  @@map("users")
 }
 
 // ==========================================
@@ -91,25 +86,23 @@ model User {
 // ==========================================
 
 model Department {
-  id             String  @id @default(uuid()) @db.Uuid
-  organizationId String  @db.Uuid
-
-  name        String  @db.VarChar(150)
-  code        String  @db.VarChar(50)
-  description String? @db.Text
+  id          String  @id @default(uuid())
+  name        String
+  code        String
+  description String?
   isActive    Boolean @default(true)
 
-  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Restrict)
-
-  employees Employee[]
+  organizationId String?       @db.Uuid
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  employees      Employee[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([organizationId, name])
-  @@unique([organizationId, code])
-  @@index([organizationId, isActive])
-  @@map("departments")
+  @@unique([name])
+  @@unique([code])
+  @@index([isActive])
+  @@index([organizationId])
 }
 
 // ==========================================
@@ -117,35 +110,29 @@ model Department {
 // ==========================================
 
 model Employee {
-  id             String @id @default(uuid()) @db.Uuid
-  organizationId String @db.Uuid
+  id           String  @id @default(uuid())
+  userId       String? @unique
+  departmentId String?
 
-  userId       String? @unique @db.Uuid
-  departmentId String? @db.Uuid
+  employeeCode   String         @unique
+  organizationId String?        @db.Uuid
+  name           String
+  email          String?        @unique
+  phone          String?
+  designation    String?
+  status         EmployeeStatus @default(ACTIVE)
+  joiningDate    DateTime?
+  salary         Decimal?       @db.Decimal(12, 2)
 
-  employeeCode String @db.VarChar(50)
-  name         String @db.VarChar(150)
-  email        String? @db.VarChar(255)
-  phone        String? @db.VarChar(30)
-
-  designation String?        @db.VarChar(150)
-  status      EmployeeStatus @default(ACTIVE)
-
-  joiningDate DateTime?
-  salary      Decimal? @db.Decimal(12, 2)
-
-  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Restrict)
-
-  user User? @relation(fields: [userId],references: [id],onDelete: SetNull)
-
-  department Department? @relation(fields: [departmentId],references: [id],onDelete: SetNull)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  department   Department?   @relation(fields: [departmentId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([organizationId, employeeCode])
+  @@index([departmentId])
   @@index([organizationId])
-  @@index([organizationId, departmentId])
-  @@index([organizationId, status])
-  @@map("employees")
+  @@index([status])
+  @@index([name])
 }
